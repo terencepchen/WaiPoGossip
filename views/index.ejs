@@ -1,0 +1,16 @@
+<html ng-app="app">
+<head>
+    <script src="lib/angular.min.js"></script>
+    <script src="lib/angular-route.min.js"></script>
+    <script src="app.js"></script>
+</head>
+
+<body>
+<% if (!isAuthenticated) { %>
+    <a href="/login"> Login </a>
+<% } else { %>
+    Welcome, <%= user.username %>!
+    <a href="/logout"> Log out </a>    
+<% } %>
+</body>
+</html>
