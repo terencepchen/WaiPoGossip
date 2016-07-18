@@ -34,6 +34,8 @@ app.use(expressSession({
 app.use(passport.initialize());
 app.use(passport.session());
 
+var hit_counter = 0;
+
 //Passport Strategies
 passport.use('login', new LocalStrategy(login_strategy));
 function login_strategy(username, password, done) {
@@ -134,6 +136,8 @@ app.post('/register', register_user, function(request, response) {
 });
 
 app.get('/login', function(request, response) {
+    hit_counter++;
+    console.log(hit_counter + " accidental visitors since last server reset");
     response.render('login');
 });
 
