@@ -11,6 +11,10 @@ var cookieparser = require('cookie-parser');
 var expressSession = require('express-session');
 var User = require('./mongodb_User.js');
 
+//Hash passwords before storing in DB
+var bcrypt = require('bcrypt');
+const salt_rounds = 10;
+
 //MongoDB
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/language');
@@ -42,14 +46,19 @@ passport.use('login', new LocalStrategy(login_strategy));
 function login_strategy(username, password, done) {
     User.findOne({username: username}, function(error, user) {
         if (user) {
-            //Success
-            if (password == user.password) {
-                console.log(user.username + ' authenticated');
-                return done(null, user);
-            } else {
-                console.warn('Wrong password');
-                return done(null, false, {message: 'Wrong password'});
-            }
+            //un-hash to check stored password
+            bcrypt.compare(password, user.password, function(error, match) {
+                if (match == true) {
+                    console.log(user.username + ' authenticated');
+                    return done(null, user);
+                } else {
+                    console.warn('Wrong password');
+                    return done(null, false, {message: 'Wrong password'});
+                }
+                if (error) {
+                    console.log("error retrieving hashed password");
+                }
+            });
         } else {
             console.warn('User not found');
             return done(null, null, {message: 'User not found'});
@@ -105,13 +114,19 @@ function register_user(request, response, next) {
             //Create new user
             var newuser = new User();
             newuser.username = request.body.username;
-            newuser.password = request.body.password;
-            newuser.save(function(error, newuser) {
-                if (error) {
-                    return console.error(error);
+            bcrypt.hash(request.body.password, salt_rounds, function(err, hash) {
+                newuser.password = hash;
+                if (err) {
+                    console.log("password hash failed");
+                } else {
+                    newuser.save(function(error, newuser) {
+                        if (error) {
+                            return console.error(error);
+                        }
+                        console.log('Created new user ' + newuser.username);
+                        return next();
+                    });
                 }
-                console.log('Created new user ' + newuser.username);
-                return next();
             });
         }
     });
