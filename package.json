@@ -19,6 +19,7 @@
     "express-session": "~1.13.0",
     "mongoose": "~4.3.7",
     "angular": "~1.5.0-rc.2",
-    "ejs": "~2.4.1"
+    "ejs": "~2.4.1",
+    "bcrypt": "*"
   }
 }
