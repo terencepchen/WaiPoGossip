@@ -1,5 +1,6 @@
 // Copyright 2016 Nathaniel Chen
 
+var https = require('https');
 var express = require('express');
 var fs = require('fs');
 var passport = require('passport');
@@ -150,6 +151,11 @@ app.get('/logout', function(request, response) {
     response.redirect('/login');
 });
 
-var server = app.listen(9000, function() {
+config = {
+    key: fs.readFileSync('./cert/nc-key.pem'),
+    cert: fs.readFileSync('./cert/nc-cert.pem')
+};
+
+var server = https.createServer(config, app).listen(9000, function() {
     console.log('Server running on port ' + server.address().port);
 });
